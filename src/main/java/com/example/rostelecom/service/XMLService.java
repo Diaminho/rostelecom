@@ -1,6 +1,9 @@
 package com.example.rostelecom.service;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,64 +20,56 @@ import org.w3c.dom.Element;
 
 public class XMLService {
 
-    public XMLService() {
-    }
+    public XMLService() {}
 
-    public DOMSource createXML() throws ParserConfigurationException, TransformerConfigurationException {
-
+    public static DOMSource createXML(Map map, List clientInfo, String method) throws ParserConfigurationException, TransformerConfigurationException {
+        Set keySet=map.keySet();
 
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
         // root elements
         Document doc = docBuilder.newDocument();
-        Element rootElement = doc.createElement("company");
+        Element rootElement = doc.createElement("request_detail");
         doc.appendChild(rootElement);
 
-        // staff elements
-        Element staff = doc.createElement("Staff");
-        rootElement.appendChild(staff);
+        //CLIENT INFO
+        Element client_info = doc.createElement("client_info");
+        rootElement.appendChild(client_info);
 
-        // set attribute to staff element
-        Attr attr = doc.createAttribute("id");
-        attr.setValue("1");
-        staff.setAttributeNode(attr);
+        Element ip = doc.createElement("ip-address");
+        ip.appendChild(doc.createTextNode((String)clientInfo.get(0)));
+        client_info.appendChild(ip);
 
-        // shorten way
-        // staff.setAttribute("id", "1");
+        Element user_agent = doc.createElement("user_agent");
+        user_agent.appendChild(doc.createTextNode((String)clientInfo.get(1)));
+        client_info.appendChild(user_agent);
+        //END OF CLIENT INFO
 
-        // firstname elements
-        Element firstname = doc.createElement("firstname");
-        firstname.appendChild(doc.createTextNode("yong"));
-        staff.appendChild(firstname);
+        Element parameters = doc.createElement("parameters");
+        Attr attr = doc.createAttribute("method");
+        attr.setValue(method);
+        parameters.setAttributeNode(attr);
+        rootElement.appendChild(parameters);
 
-        // lastname elements
-        Element lastname = doc.createElement("lastname");
-        lastname.appendChild(doc.createTextNode("mook kim"));
-        staff.appendChild(lastname);
 
-        // nickname elements
-        Element nickname = doc.createElement("nickname");
-        nickname.appendChild(doc.createTextNode("mkyong"));
-        staff.appendChild(nickname);
+        //NUMERIC PARAMS
+        Element numeric_parameters = doc.createElement("numeric_parameters");
+        parameters.appendChild(numeric_parameters);
 
-        // salary elements
-        Element salary = doc.createElement("salary");
-        salary.appendChild(doc.createTextNode("100000"));
-        staff.appendChild(salary);
+        for (Object key:keySet){
+            Element parameter = doc.createElement("parameter");
+            numeric_parameters.appendChild(parameter);
 
-        // write the content into xml file
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
+            attr = doc.createAttribute("name");
+            attr.setValue((String)key);
+            parameter.setAttributeNode(attr);
+            parameter.appendChild(doc.createTextNode((String)map.get(key)));
+        }
+        //END OF NUMERIC PARAMS
+
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File("./file.xml"));
         return source;
-        // Output to console for testing
-        // StreamResult result = new StreamResult(System.out);
-
-        //transformer.transform(source, result);
-
-        //System.out.println("File saved!");
 
     }
 

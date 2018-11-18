@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,20 +28,29 @@ public class MainController {
         this.modelMap = new ModelMap();
     }
 
-    @GetMapping("/main")
-    public RequestXML getRequestXML(HttpServletRequest request){
+    @RequestMapping("/main")
+    public DOMSource getRequestXML(HttpServletRequest request) throws ParserConfigurationException, TransformerConfigurationException {
         //
+        String method=request.getMethod();
         Enumeration enumeration = request.getParameterNames();
-        Map<String, Object> modelMap = new HashMap<>();
-        List<String> par=new ArrayList<>();
+        Map<String, Object> atribValues = new HashMap<>();
+        String str="";
         while(enumeration.hasMoreElements()){
-            par.add((String) enumeration.nextElement());
-        }
-        //
+            str=(String) enumeration.nextElement();
+            atribValues.put(str,request.getParameter(str));
 
-        double[] a={1,2};
-        String[] b={"Test1", "Test2"};
-        return new RequestXML(a, par.toArray(new String[0]));
+        }
+
+        List clientInfo=new ArrayList();
+        clientInfo.add(request.getRemoteAddr());
+        clientInfo.add(request.getHeader("User-Agent"));
+
+        DOMSource dom=XMLService.createXML(atribValues, clientInfo, method);
+        return dom;
+        //
+        //String[] arr=atribValues.keySet().toArray(new String[atribValues.keySet().size()]);
+
+        //return new RequestXML(arr);
     }
 
 

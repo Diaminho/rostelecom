@@ -3,11 +3,14 @@ package com.example.rostelecom.beans;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.Map;
 
 @XmlRootElement
 public class RequestXML {
     double[] numeric_parameter;
     String[] string_parametr;
+    Map atribValues;
 
     public double[] getNumeric_parameter() {
         return numeric_parameter;
@@ -27,8 +30,7 @@ public class RequestXML {
         this.string_parametr = string_parametr;
     }
 
-    public RequestXML(double[] numeric_parameter, String[] string_parametr) {
-        this.numeric_parameter = numeric_parameter;
+    public RequestXML(String[] string_parametr) {
         this.string_parametr = string_parametr;
     }
 
