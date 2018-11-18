@@ -43,6 +43,7 @@ public class MainController {
 
         List clientInfo=new ArrayList();
         clientInfo.add(request.getRemoteAddr());
+
         clientInfo.add(request.getHeader("User-Agent"));
 
         DOMSource dom=XMLService.createXML(atribValues, clientInfo, method);
