@@ -1,18 +1,12 @@
 package com.example.rostelecom.service;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -22,7 +16,7 @@ public class XMLService {
 
     public XMLService() {}
 
-    public static DOMSource createXML(Map map, List clientInfo, String method) throws ParserConfigurationException, TransformerConfigurationException {
+    public static DOMSource createXML(Map map, List clientInfo, String method) throws ParserConfigurationException {
         Set keySet=map.keySet();
 
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -52,26 +46,29 @@ public class XMLService {
         parameters.setAttributeNode(attr);
         rootElement.appendChild(parameters);
 
-
         //NUMERIC PARAMS
         Element numeric_parameters = doc.createElement("numeric_parameters");
         parameters.appendChild(numeric_parameters);
 
+        //String PARAMS
+        Element string_parameters = doc.createElement("string_parameters");
+        parameters.appendChild(string_parameters);
+
         for (Object key:keySet){
             Element parameter = doc.createElement("parameter");
-            numeric_parameters.appendChild(parameter);
-
             attr = doc.createAttribute("name");
             attr.setValue((String)key);
             parameter.setAttributeNode(attr);
             parameter.appendChild(doc.createTextNode((String)map.get(key)));
+            //Parse parameters
+            if (ParametersParser.parseParameter((String)map.get(key))){
+                numeric_parameters.appendChild(parameter);
+            } else {
+                string_parameters.appendChild(parameter);
+            }
         }
-        //END OF NUMERIC PARAMS
 
         DOMSource source = new DOMSource(doc);
         return source;
-
     }
-
 }
-
